@@ -22,14 +22,14 @@ def normalizar_texto(texto):
 class Messages(StrEnum):
     START = "🚀 Bot de *Nike Run Buenos Aires* iniciado.\n"
     NEW_SIGNUP_HEADER = "🟢 *¡Nuevos cupos abiertos para Nike Run!*\n"
-    SIGNUP_LINK = "👉 [Inscribite acá]({url})\n"
+    SIGNUP_LINK = "👉 [Inscribite acá]({})\n"
     SUBSCRIBED = "✅ ¡Te has suscrito a las alertas de Nike Run!\n"
     NO_SLOTS = "⌛ Todavía no hay cupos disponibles.\n"
     UNKNOWN_STATE = "⚠️ Estado desconocido en la página.\n"
-    SENT = "✅ Mensaje enviado a {chat_id}\n"
-    SEND_ERROR = "❌ Error enviando a {chat_id}: {error}\n"
-    NEW_CHAT_ID = "➕ Nuevo chat_id suscripto: {chat_id}\n"
-    ERROR_LISTENING = "❌ Error escuchando /start: {error}\n"
+    SENT = "✅ Mensaje enviado a {}\n"
+    SEND_ERROR = "❌ Error enviando a {}: {}\n"
+    NEW_CHAT_ID = "➕ Nuevo chat_id suscripto: {}\n"
+    ERROR_LISTENING = "❌ Error escuchando /start: {}\n"
 
 
 class Estados(StrEnum):
@@ -85,7 +85,7 @@ class NikeRunBot:
             if r.status_code != 200:
                 self.log(Messages.SEND_ERROR.format(cid, r.text))
             else:
-                self.log(Messages.SENT.format(chat_id=cid))
+                self.log(Messages.SENT.format(cid))
 
     def cargar_estado(self):
         if not os.path.exists(self.estado_file):
@@ -119,7 +119,7 @@ class NikeRunBot:
                 if estado_actual == Estados.INSCRIBITE:
                     mensaje = Messages.NEW_SIGNUP_HEADER
                     for link in links_con_cupos:
-                        mensaje += Messages.SIGNUP_LINK.format(url=link)
+                        mensaje += Messages.SIGNUP_LINK.format(link)
                     self.enviar_mensaje(mensaje, parse_mode="Markdown")
                 elif estado_actual == Estados.PROXIMAMENTE:
                     self.log(Messages.NO_SLOTS)
@@ -172,6 +172,6 @@ class NikeRunBot:
                             self.log(Messages.NEW_CHAT_ID.format(chat_id))
 
         except Exception as e:
-            self.log(Messages.ERROR_LISTENING.format(e))
+            self.log(Messages.ERROR_LISTENING.format(str(e))
 
 
