@@ -1,4 +1,4 @@
-from src.nikerunbot import NikeRunBot
+from nikerunbot import NikeRunBot
 
 
 def main():
