@@ -24,12 +24,16 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install --no-interaction --no-ansi --no-root
+        run: poetry install --no-root
 
-      - name: Run one check
+      - name: Prepare storage
+        run: |
+          mkdir -p src/storage
+          touch src/storage/chat_ids.txt
+          touch src/storage/estado_actual.txt
+          touch src/storage/bot.log
+
+      - name: Run bot check
         run: poetry run python src/check.py
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
