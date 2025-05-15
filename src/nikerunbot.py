@@ -21,7 +21,7 @@ def normalizar_texto(texto):
 
 class Messages(StrEnum):
     START = "🚀 Bot de *Nike Run Buenos Aires* iniciado.\n"
-    NEW_SIGNUP_HEADER = "🟢 *¡Nuevos cupos abiertos para Nike Run!*\n"
+    NEW_SIGNUP_HEADER = "🟢 *¡Nuevos cupos abiertos para Nike Run! {}*\n"
     SIGNUP_LINK = "👉 [Inscribite acá]({})\n"
     SUBSCRIBED = "✅ ¡Te has suscrito a las alertas de Nike Run!\n"
     NO_SLOTS = "⌛ Todavía no hay cupos disponibles.\n"
@@ -30,12 +30,14 @@ class Messages(StrEnum):
     SEND_ERROR = "❌ Error enviando a {}: {}\n"
     NEW_CHAT_ID = "➕ Nuevo chat_id suscripto: {}\n"
     ERROR_LISTENING = "❌ Error escuchando /start: {}\n"
+    SAVE_STATE = "✅ Estado guardado: {}\n"
+    SAVE_STATE_ERROR = "❌ Error al guardar el estado: {}\n"
 
 
 class Estados(StrEnum):
-    PROXIMAMENTE = "Proximamente"
-    INSCRIBITE = "Inscribite"
-    DESCONOCIDO = "Desconocido"
+    PROXIMAMENTE = "proximamente"
+    INSCRIBITE = "inscribite"
+    DESCONOCIDO = "desconocido"
 
 
 class NikeRunBot:
@@ -112,7 +114,7 @@ class NikeRunBot:
             )
             self.log(f"Estado actual: {estado_actual}")
 
-            if estado_actual != self.ultimo_estado:
+            if estado_actual and estado_actual != self.ultimo_estado:
                 self.ultimo_estado = estado_actual
                 self.guardar_estado(estado_actual)
 
@@ -171,7 +173,15 @@ class NikeRunBot:
                             )
                             self.log(Messages.NEW_CHAT_ID.format(chat_id))
 
+
         except Exception as e:
             self.log(Messages.ERROR_LISTENING.format(str(e)))
 
+    def guardar_estado(self, estado: str):
+        try:
+            with open(self.estado_file, "w", encoding="utf-8") as f:
+                f.write(estado.strip())
+            self.log(Messages.SAVE_STATE.format(estado))
+        except Exception as e:
+            self.log(Messages.SAVE_STATE_ERROR.format(str(e)))
 

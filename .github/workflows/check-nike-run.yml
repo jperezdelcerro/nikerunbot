@@ -3,7 +3,7 @@ name: Nike Run Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'  # cada 10 minutos
+    - cron: '*/10 * * * *'  #  10 minutes
 
 jobs:
   run-bot:
@@ -35,9 +35,9 @@ jobs:
       - name: Download previous chat_ids.txt if exists
         uses: actions/download-artifact@v4
         with:
-          name: chat-ids
+          name: datos-nikerunbot
           path: src/storage
-        continue-on-error: true  # evita fallo si no existe el artifact aún
+        continue-on-error: true 
 
       - name: Ensure all storage files exist
         run: |
@@ -50,8 +50,11 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
 
-      - name: Upload chat_ids.txt as artifact
+      - name: Upload *.txt and *.log as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: chat-ids
-          path: src/storage/chat_ids.txt
+            name: datos-nikerunbot
+            path: |
+                src/storage/estado_actual.txt
+                src/storage/bot.log
+                src/storage/chat_ids.txt
