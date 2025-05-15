@@ -1,27 +1,27 @@
-name: Nike Run BA Monitor
+name: Nike Run Bot
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
-
-permissions:
-  contents: write   
+  schedule:
+    - cron: '*/10 * * * *'  # cada 10 minutos
 
 jobs:
-  check:
+  run-bot:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true  
-          fetch-depth: 0           
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: 3.11
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run:  |
@@ -29,28 +29,29 @@ jobs:
             pip install poetry
             poetry install --no-interaction --no-ansi --no-root
 
-      - name: Prepare storage
+      - name: Ensure storage directory exists
+        run: mkdir -p src/storage
+
+      - name: Download previous chat_ids.txt if exists
+        uses: actions/download-artifact@v4
+        with:
+          name: chat-ids
+          path: src/storage
+        continue-on-error: true  # evita fallo si no existe el artifact aún
+
+      - name: Ensure all storage files exist
         run: |
-          mkdir -p src/storage
           touch src/storage/chat_ids.txt
           touch src/storage/estado_actual.txt
           touch src/storage/bot.log
 
-      - name: Run bot check
+      - name: Run the bot
         run: poetry run python src/check.py
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          
-      - name: Commit and push changes if any
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/storage/chat_ids.txt src/storage/estado_actual.txt
-          if ! git diff --cached --exit-code; then
-            git commit -m "chore: update chat_ids and estado_actual via GitHub Actions"
-            git push origin HEAD:main
-          else
-            echo "No changes to commit"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload chat_ids.txt as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chat-ids
+          path: src/storage/chat_ids.txt
