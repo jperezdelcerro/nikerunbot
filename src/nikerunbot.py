@@ -172,6 +172,6 @@ class NikeRunBot:
                             self.log(Messages.NEW_CHAT_ID.format(chat_id))
 
         except Exception as e:
-            self.log(Messages.ERROR_LISTENING.format(str(e))
+            self.log(Messages.ERROR_LISTENING.format(str(e)))
 
 
